@@ -1,0 +1,175 @@
+import random
+import pygame
+import math
+import winsound
+
+pygame.init()
+pygame.display.set_caption("simon")
+screen = pygame.display.set_mode((800,800))
+
+xpos = 0
+ypos = 0
+mousePos = [xpos, ypos]
+turn = False
+hasClicked = False
+pattern = []
+playerPattern = []
+playerTurn = False
+pi = 3.1415
+ded = False
+# The clock will be used to control how fast the screen updates
+clock = pygame.time.Clock()
+
+
+def collision(xpos,ypos):
+    print("coords:", xpos, ypos)
+    if math.sqrt((xpos - 400)**2 + (ypos - 400)**2)>200:
+        #print("outside of ring")
+        return -1
+    elif xpos < 400 and ypos < 400:
+        #print("over red button")
+        pygame.draw.arc(screen, (255,0,0), (200,200,400,400), pi / 2, pi, 100)
+        pygame.display.flip()
+        winsound.Beep(440,500)
+        return 0
+    elif xpos < 400 and ypos > 400:
+        #print("over green button")
+        pygame.draw.arc(screen, (0,255,0), (200,200,400,400),  pi, (3 * pi / 2), 100)
+        pygame.display.flip()
+        winsound.Beep(640,500)
+        return 1
+    elif xpos > 400 and ypos > 400:
+        #print("over blue button")
+        pygame.draw.arc(screen, (0,0,255), (200,200,400,400),  3*pi / 2, pi / 1000, 100)
+        pygame.display.flip()
+        winsound.Beep(840,500)
+        return 2
+    elif xpos > 400 and ypos < 400:
+        #print("over yellow button")
+        pygame.draw.arc(screen, (255,255,0), (200,200,400,400), pi / 1000, pi / 2, 100)
+        pygame.display.flip()
+        winsound.Beep(240,500)
+        return 3
+
+pygame.draw.arc(screen, (155,0,0), (200, 200, 400, 400), pi / 2, pi, 100) #red
+pygame.draw.arc(screen, (0,155,0), (200, 200, 400, 400), pi, (3 * pi / 2), 100) #green
+pygame.draw.arc(screen, (0,0,155), (200, 200, 400, 400), 3*pi / 2, pi / 1000, 100) #blue
+pygame.draw.arc(screen, (155,155,0), (200,200,400,400), pi / 1000, pi / 2, 100) #yellow
+#more colors go here
+pygame.display.flip()
+
+#gameloop###########################################
+while not ded:
+    #event que stuff
+    clock.tick(60) #set the fps
+
+    for event in pygame.event.get(): #check if user did something
+        if event.type == pygame.QUIT: #check if user clicked close
+            doExit = True #flag that e are done so we exit game loop
+   
+    #input section######################################################
+   
+    if event.type == pygame.QUIT: # close game window
+        break
+   
+    if event.type == pygame.MOUSEBUTTONDOWN:
+        hasClicked = True
+        playerTurn = True
+        print("click")
+   
+    if event.type == pygame.MOUSEBUTTONUP:
+        hasClicked = False
+   
+    if event.type == pygame.MOUSEMOTION:
+        mousePos = event.pos
+        #print(mousePos)
+    #update section#################################################################
+       
+    #pattern.append(random.randrange(0,4))
+    print("pattern is ", len(pattern), "player pattern is", len(playerPattern))
+   
+    #player turn#####################################################################
+   
+   
+   
+    if playerTurn == True:
+        print("starting player turn")
+        if len(playerPattern) < len(pattern):
+            if hasClicked == True:
+                print("appending to playerPattern")
+                playerPattern.append(collision(mousePos[0], mousePos[1]))
+                hasClicked = False
+           
+            for i in range(len(playerPattern)):
+                #for i in range(len(pattern)):
+                if playerPattern[i] != pattern[i]:
+                    ded = True
+                    print("Dead is true")
+        else:
+            playerTurn = False
+            pygame.time.wait(800)
+           
+           
+    #if ded == True:
+       
+   
+   
+   
+   
+    #play compute pattern
+    if playerTurn == False:
+        print("starting simon turn", end = " ")
+        pattern.append(random.randrange(0,4))
+       
+        for i in range(len(pattern)):
+            if pattern[i] == 0: #red
+                #briefly draw a brighter color
+                pygame.draw.arc(screen, (255,0,0), (200,200,400,400), pi / 2, pi, 100)
+                pygame.display.flip()
+                winsound.Beep(440,500)
+           
+        for i in range(len(pattern)):
+            if pattern[i] == 1: #green
+                #briefly draw a brighter color
+                pygame.draw.arc(screen, (0,255,0), (200,200,400,400),  pi, (3 * pi / 2), 100)
+                pygame.display.flip()
+                winsound.Beep(640,500)
+               
+        for i in range(len(pattern)):
+            if pattern[i] == 2: #blue
+                #briefly draw a brighter color
+                pygame.draw.arc(screen, (0,0,255), (200,200,400,400),  3*pi / 2, pi / 1000, 100)
+                pygame.display.flip()
+                winsound.Beep(840,500)
+       
+        for i in range(len(pattern)):
+            if pattern[i] == 3: #yellow
+                #briefly draw a brighter color
+                pygame.draw.arc(screen, (255,255,0), (200,200,400,400), pi / 1000, pi / 2, 100)
+                pygame.display.flip()
+                winsound.Beep(240,500)
+               
+        pygame.draw.arc(screen, (155,0,0), (200, 200, 400, 400), pi / 2, pi, 100) #red
+        pygame.draw.arc(screen, (0,155,0), (200, 200, 400, 400), pi, (3 * pi / 2), 100) #green
+        pygame.draw.arc(screen, (0,0,155), (200, 200, 400, 400), (3*pi / 2), pi / 1000, 100) #blue
+        pygame.draw.arc(screen, (155,155,0), (200,200,400,400), pi / 1000, pi / 2, 100) #yellow
+        pygame.time.wait(800)
+        playerTurn = True
+        playerPattern.clear()
+       
+   
+
+               
+           
+   
+#draw everything first so things dont appear one at a time
+    pygame.draw.arc(screen, (155,0,0), (200, 200, 400, 400), pi / 2, pi, 100) #red
+    pygame.draw.arc(screen, (0,155,0), (200, 200, 400, 400), pi, (3 * pi / 2), 100) #green
+    pygame.draw.arc(screen, (0,0,155), (200, 200, 400, 400), (3*pi / 2), pi / 1000, 100) #blue
+    pygame.draw.arc(screen, (155,155,0), (200,200,400,400), pi / 1000, pi / 2, 100) #yellow
+#more colors go here
+    pygame.display.flip()
+   
+if ded == True:
+    print("game over")
+pygame.quit()
